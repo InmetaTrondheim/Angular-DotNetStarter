@@ -15,7 +15,13 @@ export class SendValuesComponent implements OnInit {
   }
 
   send() {
-    this._valuesService.SendValue(this.textToUpper).subscribe(value => this.textToUpper = value);
+    const formData = new FormData(this.textToUpper);
+    this._valuesService.SendValue(formData).subscribe(value => this.textToUpper = value.value);
   }
+}
 
+export class FormData {
+  value: string;
+
+  constructor(value: string){ this.value = value; }
 }

@@ -183,7 +183,7 @@ export class ValuesService {
   }
 }
 ```
-Update `Controllers\ValuesController.cs` POST method to accept a string and make it uppercase:
+Update `Controllers\ValuesController.cs` POST method to accept a string and make it uppercase. Also add a model to recieve data:
 ```csharp
 ...
 namespace webapi.Controllers
@@ -191,16 +191,22 @@ namespace webapi.Controllers
     [Route("api/[controller]")]
     public class ValuesController : Controller
     {
-...
+        ...
         // POST api/values
         [HttpPost]
-        public IActionResult Post([FromBody]string value)
+        public IActionResult Post([FromBody]FormData data)
         {
-            return Ok(value.ToUpper());
+            data.Value = data.Value.ToUpper();
+            return Ok(data);
         }
-...
+        ...
+    }
+
+    public class FormData {
+        public string Value { get; set; }
     }
 }
+
 ```
 Remember to change the return type from `void` to `IActionResult`.
 
@@ -243,8 +249,14 @@ export class SendValuesComponent implements OnInit {
   }
 
   send() {
-    this._valuesService.SendValue(this.textToUpper).subscribe(value => this.textToUpper = value);
+    const formData = new FormData(this.textToUpper);
+    this._valuesService.SendValue(formData).subscribe(value => this.textToUpper = value.value);
   }
+}
 
+export class FormData {
+  value: string;
+
+  constructor(value: string){ this.value = value; }
 }
 ```

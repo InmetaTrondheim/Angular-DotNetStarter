@@ -14,8 +14,8 @@ export class ValuesService {
     return this._http.get<string[]>(url);
   }
 
-  SendValue(value: string): Observable<string> {
+  SendValue(value: any): Observable<any> {
     const url = this.apiUrl +  'values';
-    return this._http.post<string>(url, '"' + value + '"');
+    return this._http.post(url, value);
   }
 }

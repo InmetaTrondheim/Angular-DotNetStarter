@@ -25,9 +25,10 @@ namespace webapi.Controllers
 
         // POST api/values
         [HttpPost]
-        public IActionResult Post([FromBody]string value)
+        public IActionResult Post([FromBody]FormData data)
         {
-            return Ok(value.ToUpper());
+            data.Value = data.Value.ToUpper();
+            return Ok(data);
         }
 
         // PUT api/values/5
@@ -41,5 +42,9 @@ namespace webapi.Controllers
         public void Delete(int id)
         {
         }
+    }
+
+    public class FormData {
+        public string Value { get; set; }
     }
 }
