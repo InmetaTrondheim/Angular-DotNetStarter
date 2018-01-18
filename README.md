@@ -95,7 +95,7 @@ import { environment } from '../../../environments/environment.prod';
 
 @Injectable()
 export class ValueService {
-  apiUrl = "http://localhost:4200/api/"
+  apiUrl = "http://localhost:5000/api/"
 
   constructor(private _http: HttpClient) { }
 
@@ -108,7 +108,7 @@ export class ValueService {
 Our Angular app does not yet know about `HttpClient` which we inject in the constructor, so we must import `HttpClientModule` into `app.module.ts`.
 ```javascript
 ...
-import { HttpClientModule } from '@angular/common/http/src/module';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
 ...
@@ -116,4 +116,135 @@ import { HttpClientModule } from '@angular/common/http/src/module';
 ...
 })
 export class AppModule { }
+```
+
+We now need a component to read data from webapi. Generate a new component:
+```console
+ng generate component values
+```
+Copy the following into the new file `values.component.ts`
+```javascript
+import { Component, OnInit } from '@angular/core';
+import { ValuesService } from '../core/services/values.service';
+
+@Component({
+  selector: 'app-values',
+  templateUrl: './values.component.html',
+  styleUrls: ['./values.component.css'],
+  providers: [ValuesService]
+})
+export class ValuesComponent implements OnInit {
+
+  values: string[];
+  constructor(private _valuesService: ValuesService) { }
+
+  ngOnInit() {
+    this._valuesService.GetValues().subscribe(val => this.values = val);
+  }
+
+}
+```
+Open `values.component.html` and paste the following:
+```html
+<p *ngFor="let value of values">{{ value }}</p>
+```
+Go to `app.component.html` and replace it all with the following:
+```html
+<app-values></app-values>
+```
+
+The website [localhost:4200](http://localhost:4200) should now read which is the exact same data as given by our webapi
+```
+value1
+value2
+```
+
+# Send data to webapi
+Sending data to webapi is almost as easy as reading. We're going to use our existing values service, and on the webapi we're going to uppercase the input so that we easily can see that the data was touched by webapi.
+
+Create a new component for sending data:
+```console
+ng generate component sendValues
+```
+Add this component to `app.component.html`
+```html
+<app-values></app-values>
+<app-send-values></app-send-values>
+```
+Update our `values.service.ts`
+```javascript
+@Injectable()
+export class ValuesService {
+...
+
+  SendValue(value: string): Observable<string> {
+    const url = this.apiUrl +  'values';
+    return this._http.post<string>(url, value);
+  }
+}
+```
+Update `Controllers\ValuesController.cs` POST method to accept a string and make it uppercase:
+```csharp
+...
+namespace webapi.Controllers
+{
+    [Route("api/[controller]")]
+    public class ValuesController : Controller
+    {
+...
+        // POST api/values
+        [HttpPost]
+        public IActionResult Post([FromBody]string value)
+        {
+            return Ok(value.ToUpper());
+        }
+...
+    }
+}
+```
+Remember to change the return type from `void` to `IActionResult`.
+
+Open `app.module.ts` and import Angular `FormsModule`
+```javascript
+...
+import { FormsModule }   from '@angular/forms';
+
+@NgModule({
+...
+  imports: [ FormsModule ],
+...
+})
+export class AppModule { }
+```
+
+Open `send-values.component.html` and copy the following:
+```html
+  <label for="toUpper">Value to make large</label>
+  <input type="text" id="toUpper" placeholder="Enter desired text here" [(ngModel)]="textToUpper">
+  <button type="button" (click)="send()">Send</button>
+  <p>You entered: {{ textToUpper }}</p>
+```
+Open `send-values.component.ts` and copy the following:
+```javascript
+import { Component, OnInit } from '@angular/core';
+import { ValuesService } from '../core/services/values.service';
+
+@Component({
+  selector: 'app-send-values',
+  templateUrl: './send-values.component.html',
+  styleUrls: ['./send-values.component.css']
+})
+export class SendValuesComponent implements OnInit {
+
+  textToUpper: string;
+  constructor(private _valuesService: ValuesService) { }
+
+  ngOnInit() {
+  }
+
+  send() {
+    this._valuesService.SendValue(this.textToUpper).subscribe(value => this.textToUpper = value);
+  }
+
+}
 ```

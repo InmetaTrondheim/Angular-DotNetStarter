@@ -1,18 +1,23 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-
+import { FormsModule }   from '@angular/forms';
 
 import { AppComponent } from './app.component';
 import { ValuesService } from './core/services/values.service';
-import { HttpClientModule } from '@angular/common/http/src/module';
+import { ValuesComponent } from './values/values.component';
+import { HttpClientModule } from '@angular/common/http';
+import { SendValuesComponent } from './send-values/send-values.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    ValuesComponent,
+    SendValuesComponent
   ],
   imports: [
     BrowserModule,
-    HttpClientModule
+    HttpClientModule,
+    FormsModule
   ],
   providers: [ValuesService],
   bootstrap: [AppComponent]
