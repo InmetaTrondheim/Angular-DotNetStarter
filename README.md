@@ -80,3 +80,40 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env)
     app.UseMvc();
 }
 ```
+
+# How to read data from the api to Angular
+Open a new console and open the `client` folder. Create a new service:
+```console
+ng generate service core/services/values --module=app
+```
+Copy this into the new file:
+```javascript
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment.prod';
+
+@Injectable()
+export class ValueService {
+  apiUrl = "http://localhost:4200/api/"
+
+  constructor(private _http: HttpClient) { }
+
+  GetValues(): Observable<string[]> {
+    const url = this.apiUrl + 'values';
+    return this._http.get<string[]>(url);
+  }
+}
+```
+Our Angular app does not yet know about `HttpClient` which we inject in the constructor, so we must import `HttpClientModule` into `app.module.ts`.
+```javascript
+...
+import { HttpClientModule } from '@angular/common/http/src/module';
+
+@NgModule({
+...
+  imports: [ HttpClientModule ],
+...
+})
+export class AppModule { }
+```
