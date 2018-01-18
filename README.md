@@ -177,9 +177,9 @@ Update our `values.service.ts`
 export class ValuesService {
 ...
 
-  SendValue(value: string): Observable<string> {
+  SendValue(value: any): Observable<any> {
     const url = this.apiUrl +  'values';
-    return this._http.post<string>(url, value);
+    return this._http.post(url, value);
   }
 }
 ```
