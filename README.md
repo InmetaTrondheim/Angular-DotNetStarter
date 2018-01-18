@@ -34,4 +34,49 @@ If you now open a browser and goes to [localhost](http://localhost:4200) you wil
 # Create a new Dotnet core webapi project
 Open a new command window, you don't have to close the one where angular is running and make sure that the command windows is in the root folder of this tutorials folder. (Not inside client folder). To do this in Visual Studio Code View > Integrated Terminal and press the [+] button.
 ```console
-dotnet new webapi webapi
+mkdir webapi
+cd webapi
+dotnet new webapi
+```
+For simplicity we shall install dotnet watch, so our app will recompile on filechange simular to `ng serve`.
+### Add a `Microsoft.DotNet.Watcher.Tools` package reference to the .csproj file:
+
+
+```xml
+<ItemGroup>
+    <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="2.0.0" />
+</ItemGroup> 
+```
+### Install the `Microsoft.DotNet.Watcher.Tools` package by running the following command:
+```console
+dotnet restore
+```
+### Execute the command by running
+```console
+dotnet watch run
+```
+Everytime a dotnet project file is changed, webapi will recompile for you.
+Navigate to [localhost:5000](http://localhost:5000/api/values).
+It should read: `["value1","value2"]`
+
+Since Angular is running on port :4200 and dotnet on port :5000, then dotnet will not accept commands from another port/website domain other than from the same it is running on. For this we must enable CORS.
+### To add CORS to the webapi project open `Startup.cs` and add `AddCors()` in `ConfigureServices()`
+```Csharp
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddMvc();
+    services.AddCors();
+}
+```
+And allow `http://localhost:4200` with `app.UseCors(builder => builder.WithOrigins("http://localhost:4200"));`
+```csharp
+public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+{
+    if (env.IsDevelopment())
+    {
+        app.UseDeveloperExceptionPage();
+    }
+    app.UseCors(builder => builder.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod());
+    app.UseMvc();
+}
+```
