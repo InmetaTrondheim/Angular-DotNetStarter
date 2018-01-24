@@ -38,14 +38,24 @@ mkdir webapi
 cd webapi
 dotnet new webapi
 ```
-For simplicity we shall install dotnet watch, so our app will recompile on filechange simular to `ng serve`.
+For simplicity we shall install dotnet watch, so our app will recompile on filechange simular to `ng serve`. We could choose to not use wath and call the dotnet commands directly. The difference is that watch will listen for filechanges and then execute the dotnet command of our choosing. For instance:
+```csharp
+dotnet build
+dotnet run
+```
+Is needed to build and run a dotnet solution. Everytime we make changes to a file we must execute these two steps. But with:
+```csharp
+dotnet watch run
+```
+The tool `watch` will build and execute dotnet run on our behalf.
 ### Add a `Microsoft.DotNet.Watcher.Tools` package reference to the .csproj file:
 
 
 ```xml
 <ItemGroup>
-    <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="2.0.0" />
-</ItemGroup> 
+    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
+    -> Add this -> <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="2.0.0" />
+  </ItemGroup>
 ```
 ### Install the `Microsoft.DotNet.Watcher.Tools` package by running the following command:
 ```console
@@ -56,7 +66,7 @@ dotnet restore
 dotnet watch run
 ```
 Everytime a dotnet project file is changed, webapi will recompile for you.
-Navigate to [localhost:5000](http://localhost:5000/api/values).
+Navigate to [http://localhost:5000/api/values](http://localhost:5000/api/values).
 It should read: `["value1","value2"]`
 
 Since Angular is running on port :4200 and dotnet on port :5000, then dotnet will not accept commands from another port/website domain other than from the same it is running on. For this we must enable CORS.
@@ -94,7 +104,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment.prod';
 
 @Injectable()
-export class ValueService {
+export class ValuesService {
   apiUrl = "http://localhost:5000/api/"
 
   constructor(private _http: HttpClient) { }
